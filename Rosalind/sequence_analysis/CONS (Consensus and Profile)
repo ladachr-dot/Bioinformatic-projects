@@ -1,0 +1,81 @@
+'''
+Description: Создание матрицы профиля и нахождение консенсусной строки для набора ДНК.
+Используется для поиска общих регуляторных элементов и построения «логотипов» генов.
+'''
+
+import sys
+
+def parse_fasta():
+    sequences = []
+    current_seq = []
+    for line in sys.stdin:
+        line = line.strip()
+        if not line: continue
+        if line.startswith(">"):
+            if current_seq:
+                sequences.append("".join(current_seq))
+                current_seq = []
+        else:
+            current_seq.append(line)
+    if current_seq:
+        sequences.append("".join(current_seq))
+    return sequences
+
+def finda():
+    dna_list = parse_fasta()
+    if not dna_list: return
+    
+    n = len(dna_list[0])
+    # Матрица профиля: считаем количество каждого нуклеотида в каждой позиции
+    profile = {
+        'A': [0] * n,
+        'C': [0] * n,
+        'G': [0] * n,
+        'T': [0] * n
+    }
+
+    for dna in dna_list:
+        for i, char in enumerate(dna):
+            profile[char][i] += 1
+
+    # Построение консенсусной строки (самый частый нуклеотид в каждой позиции)
+    consensus = []
+    for i in range(n):
+        max_count = -1
+        target_char = ""
+        for char in "ACGT":
+            if profile[char][i] > max_count:
+                max_count = profile[char][i]
+                target_char = char
+        consensus.append(target_char)
+
+    print("".join(consensus))
+    for char in "ACGT":
+        counts = " ".join(map(str, profile[char]))
+        print(f"{char}: {counts}")
+
+if __name__ == "__main__":
+    finda()
+
+'''
+Пример простого ввода:
+  >Rosalind_1 
+  ATCCAGCT
+  >Rosalind_2
+  GGGCAACT
+  >Rosalind_3
+  ATGGATCT
+  >Rosalind_4
+  AAGCAACC
+  >Rosalind_5
+  TTGGAACT
+  >Rosalind_6
+  ATGCCATT
+  >Rosalind_7
+  ATGGCACT
+Пример простого вывода:
+  A: 5 1 0 0 5 5 0 0 
+  C: 0 0 1 4 2 0 6 1 
+  G: 1 1 6 3 0 1 0 0 
+  Т: 1 5 0 0 0 1 1 6
+'''
