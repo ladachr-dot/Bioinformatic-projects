@@ -1,0 +1,74 @@
+'''
+Description: Код находит самую длинную общую последовательность 
+нуклеотидов в предоставленных строках формата FASTA.
+'''
+
+from sys import stdin
+
+# Сначала парсим FASTA
+
+def fasta():
+  """Читает FASTA"""
+  seq = []
+  current = []
+    
+  for line in stdin:
+    line = line.strip()
+    if not line: 
+      continue
+    if line.startswith('>'):
+      if current:
+        seq.append("".join(current))
+        current = []
+    else:
+      current.append(line)
+  if current:
+    seq.append("".join(current))
+
+  return seq # Возвращаем список строк
+
+# Далее находим сначала самую короткую строку из нашего набора и отделяем её.
+sequences = fasta()
+sequences.sort(key=len)
+shortest = sequences[0]
+others = sequences[1:]
+
+def get_common(length):
+  """Проверяет, есть ли общая подстрока заданной длины."""
+  for i in range(len(shortest) - length + 1):
+    candidate = shortest[i:i + length]
+    # Если кандидат есть во всех остальных строках — мы его нашли
+    if all(candidate in s for s in others):
+      return candidate
+  return None
+
+# Поиск по длине
+
+low = 1
+high = len(shortest)
+result = ""
+
+while low <= high:
+  mid = (low + high) // 2
+  found = get_common(mid)
+
+  if found:
+    result = found
+    low = mid + 1 # Если существует такое - ищем длиннее
+  else:
+    high = mid - 1 # Если не существует такое, то нет и длиннее - ищем короче
+
+print(result)
+
+'''
+В качестве примера ввода (FASTA):
+  >Rosalind_1
+  GATTACA
+  >Rosalind_2
+  TAGACCA
+  >Rosalind_3
+  ATACA
+
+Пример вывода:
+  AC
+'''
