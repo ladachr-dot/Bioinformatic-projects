@@ -1,0 +1,29 @@
+'''
+Description: Код возвращает строку, обратную и комплементарную строке ДНК.
+* Несмотря на то что в библиотеках вроде Biopython для этого есть 
+готовый метод (Seq.reverse_complement()), я посчитала нужным 
+добавить сюда базовый алгоритм, который был написан в качестве 
+практики, так как это была одна из первых моих задач с Rosalind.
+'''
+
+s = input().strip()
+
+res = []
+for base in s[::-1]:
+    if base == 'A':
+        res.append('T')
+    elif base == 'T':
+        res.append('A')
+    elif base == 'C':
+        res.append('G')
+    elif base == 'G':
+        res.append('C')
+
+print(''.join(res))
+
+'''
+В качестве простого примера ввода:
+  AAAACCCGGT
+В качестве простого примера вывода:
+  ACCGGGTTTT
+'''
